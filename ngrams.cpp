@@ -13,17 +13,22 @@
 #include "vector.h"
 #include "set.h"
 #include "tokenscanner.h"
+#include "random.h"
 
 using namespace std;
 
 void buildMap(int n, ifstream &infile, Map<Queue<string>, Vector<string> > &nmap);
+void generateRandomText(Map<Queue<string>, Vector<string> > &nmap);
+Queue<string> pickStartingPoint(Map<Queue<string>, Vector<string> > &nmap);
+string pickRandomWord(Vector<string> &currentVector);
 
 int main() {
   Map<Queue<string>, Vector<string> > nmap;
   ifstream infile;
-  infile.open("test.txt");
+  infile.open("hughes.txt");
 
-  buildMap(3, infile, nmap);
+  buildMap(5, infile, nmap);
+  generateRandomText(nmap);
 
   cout << "Exiting." << endl;
   return 0;
@@ -43,7 +48,11 @@ void buildMap(int n, ifstream &infile, Map<Queue<string>, Vector<string> > &nmap
   TokenScanner scanner(infile);
   scanner.ignoreWhitespace();
   //need to add more punctuations here
-  scanner.addWordCharacters(",");  
+  scanner.addWordCharacters(",");
+  scanner.addWordCharacters(".");
+  scanner.addWordCharacters("!");
+  scanner.addWordCharacters("?");
+  scanner.addWordCharacters("'");      
 
   int i = 1;
   while (scanner.hasMoreTokens()) {
@@ -82,4 +91,60 @@ void buildMap(int n, ifstream &infile, Map<Queue<string>, Vector<string> > &nmap
     cout << k.toString() << "   ";
     cout << nmap[k].toString() << endl;
   }
+}
+
+
+/* Function: generateRandomText
+ * Usage:    generateRandomText(nmap)
+ * ----------------------------------
+ * Precondition:
+ * Postcondition:
+ */
+void generateRandomText(Map<Queue<string>, Vector<string> > &nmap) {
+  Queue<string> currentKey = pickStartingPoint(nmap);
+  //cout << currentKey.toString() << endl;
+  
+  int i = 0;			// for testing
+  cout << "... ";
+  while (i < 100) {
+    Vector<string> currentVector = nmap.get(currentKey);
+    string nextWord = pickRandomWord(currentVector);
+    cout << nextWord << " " ;
+    currentKey.dequeue();
+    currentKey.enqueue(nextWord);
+    i++;
+  }
+
+  cout << "..." << endl;
+  cout << endl;
+}
+
+
+/* Function: pickStartingPoint
+ * Usage:    q = pickStartingPoint(nmap)
+ * -------------------------------------
+ * Picks a random key from the map
+ * Precondition:
+ * Postcondition:
+ */
+Queue<string> pickStartingPoint(Map<Queue<string>, Vector<string> > &nmap) {
+  Queue<string> result;
+  Vector<Queue<string> > keys = nmap.keys();
+  int size = keys.size();
+  int i = randomInteger(0, size - 1);
+
+  return keys[i];
+}
+
+
+/* Function: pickRandomWord
+ * Usage:    word = pickRandomWord(currentVector)
+ * ----------------------------------------------
+ * Precondition
+ * Postcondition
+ */
+string pickRandomWord(Vector<string> &currentVector) {
+  int size = currentVector.size();
+  int i = randomInteger(0, size - 1);
+  return currentVector[i];
 }
